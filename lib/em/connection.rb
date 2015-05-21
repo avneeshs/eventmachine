@@ -404,15 +404,15 @@ module EventMachine
     #
     # @see #ssl_verify_peer
     def start_tls args={}
-      priv_key, cert_chain, verify_peer = args.values_at(:private_key_file, :cert_chain_file, :verify_peer)
+      priv_key, cert_chain, verify_peer, ca, verify_depth = args.values_at(:private_key_file, :cert_chain_file, :verify_peer, :ca_file, :verify_depth)
 
-      [priv_key, cert_chain].each do |file|
+      [priv_key, cert_chain, ca].each do |file|
         next if file.nil? or file.empty?
         raise FileNotFoundException,
         "Could not find #{file} for start_tls" unless File.exist? file
       end
 
-      EventMachine::set_tls_parms(@signature, priv_key || '', cert_chain || '', verify_peer)
+      EventMachine::set_tls_parms(@signature, priv_key || '', cert_chain || '', verify_peer, ca || '', verify_depth)
       EventMachine::start_tls @signature
     end
 

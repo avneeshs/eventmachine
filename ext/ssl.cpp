@@ -120,7 +120,7 @@ static void InitializeDefaultCredentials()
 SslContext_t::SslContext_t
 **************************/
 
-SslContext_t::SslContext_t (bool is_server, const string &privkeyfile, const string &certchainfile):
+SslContext_t::SslContext_t (bool is_server, const string &privkeyfile, const string &certchainfile, const string &cafile):
 	pCtx (NULL),
 	PrivateKey (NULL),
 	Certificate (NULL)
@@ -192,6 +192,13 @@ SslContext_t::SslContext_t (bool is_server, const string &privkeyfile, const str
 			assert (e > 0);
 		}
 	}
+
+	if (cafile.length() > 0) {
+		int e;
+		e = SSL_CTX_load_verify_locations(pCtx, cafile.c_str(), NULL);
+		if (e <= 0) ERR_print_errors_fp(stderr);
+		assert (e > 0);
+	}
 }
 
 
@@ -216,7 +223,7 @@ SslContext_t::~SslContext_t()
 SslBox_t::SslBox_t
 ******************/
 
-SslBox_t::SslBox_t (bool is_server, const string &privkeyfile, const string &certchainfile, bool verify_peer, const unsigned long binding):
+SslBox_t::SslBox_t (bool is_server, const string &privkeyfile, const string &certchainfile, bool verify_peer, const string &cafile, int verify_depth, const unsigned long binding):
 	bIsServer (is_server),
 	bHandshakeCompleted (false),
 	bVerifyPeer (verify_peer),
@@ -228,7 +235,7 @@ SslBox_t::SslBox_t (bool is_server, const string &privkeyfile, const string &cer
 	 * a new one every time we come here.
 	 */
 
-	Context = new SslContext_t (bIsServer, privkeyfile, certchainfile);
+	Context = new SslContext_t (bIsServer, privkeyfile, certchainfile, cafile);
 	assert (Context);
 
 	pbioRead = BIO_new (BIO_s_mem());
@@ -246,6 +253,9 @@ SslBox_t::SslBox_t (bool is_server, const string &privkeyfile, const string &cer
 
 	if (bVerifyPeer)
 		SSL_set_verify(pSSL, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, ssl_verify_wrapper);
+
+	if (verify_depth >= 0)
+		SSL_set_verify_depth(pSSL, verify_depth);
 
 	if (!bIsServer)
 		SSL_connect (pSSL);
