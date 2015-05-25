@@ -488,6 +488,17 @@ module EventMachine
       EventMachine::get_peer_cert @signature
     end
 
+    #
+    # If TLS is active on the connection, returns any error in the
+    # internal verification of the peer's certificate.
+    #
+    # @return [String] Error that was encountered in verifying peer,
+    # nil otherwise.
+    #
+    #
+    def get_peer_verify_error
+      EventMachine::get_peer_verify_error @signature
+    end
 
     # Sends UDP messages.
     #

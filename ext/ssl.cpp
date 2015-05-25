@@ -447,6 +447,25 @@ X509 *SslBox_t::GetPeerCert()
 	return cert;
 }
 
+/*****************************
+SslBox_t::GetPeerVerifyResult
+*****************************/
+
+int SslBox_t::GetPeerVerifyResult(std::string *err)
+{
+	if (pSSL) {
+		long result = SSL_get_verify_result(pSSL);
+		if (result == X509_V_OK) {
+			return 1;
+		}
+		if (err) {
+			const char *err_str = X509_verify_cert_error_string(result);
+			err->assign(err_str);
+		}
+	}
+
+	return 0;
+}
 
 /******************
 ssl_verify_wrapper

@@ -72,6 +72,7 @@ extern "C" {
 
 	#ifdef WITH_SSL
 	X509 *evma_get_peer_cert (const unsigned long binding);
+	int evma_get_peer_verify_result (const unsigned long binding, char *err_buf, size_t *err_buf_len);
 	void evma_accept_ssl_peer (const unsigned long binding);
 	#endif
 

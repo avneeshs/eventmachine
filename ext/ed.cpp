@@ -1203,6 +1203,18 @@ X509 *ConnectionDescriptor::GetPeerCert()
 }
 #endif
 
+/*****************************************
+ConnectionDescriptor::GetPeerVerifyResult
+*****************************************/
+
+#ifdef WITH_SSL
+int ConnectionDescriptor::GetPeerVerifyResult(std::string *err)
+{
+	if (!SslBox)
+		throw std::runtime_error ("SSL/TLS not running on this connection");
+	return SslBox->GetPeerVerifyResult(err);
+}
+#endif
 
 /***********************************
 ConnectionDescriptor::VerifySslPeer

@@ -466,6 +466,30 @@ extern "C" X509 *evma_get_peer_cert (const unsigned long binding)
 }
 #endif
 
+/***************************
+evma_get_peer_verify_result
+***************************/
+
+#ifdef WITH_SSL
+extern "C" int evma_get_peer_verify_result (const unsigned long binding, char *buf, size_t *buf_len)
+{
+	std::string err("Unknown error");
+
+	ensure_eventmachine("evma_get_peer_verify_result");
+	EventableDescriptor *ed = dynamic_cast <EventableDescriptor*> (Bindable_t::GetObject (binding));
+	if (ed) {
+		if (ed->GetPeerVerifyResult(&err)) {
+			return 1;
+		}
+		if (buf && *buf_len > 0) {
+			std::size_t len = err.copy(buf, (*buf_len) - 1);
+			*buf_len = len;
+		}
+	}
+	return 0;
+}
+#endif
+
 /********************
 evma_accept_ssl_peer
 ********************/
